@@ -1,0 +1,233 @@
+:root {
+  --bg:      #000;
+  --deck:    #111;
+  --surface: #1b1b1b;
+  --line:    #333;
+  --text:    #e6e6e6;
+  --muted:   #8a8a8a;
+  --accent:  #e05;
+  --cam:     #0af;
+  --font:    'Share Tech Mono', ui-monospace, monospace;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+}
+
+button, select, input { font-family: inherit; color: inherit; }
+
+/* ── Page: deck + poster sit side by side, centered as one group ── */
+#app {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  height: 100vh;
+  height: 100dvh;
+}
+
+#stage {
+  flex: none;
+  height: 100%;
+  min-width: 0;
+}
+
+/* p5 sets inline px sizes; scale the canvas to the stage height, keeping its shape */
+#stage canvas {
+  display: block;
+  height: 100% !important;
+  width: auto !important;
+  max-width: calc(100vw - 25vw - 32px);
+  object-fit: contain;
+}
+
+/* ── Deck: a quarter of the screen, minus 25px on each side ── */
+.deck {
+  order: -1;
+  flex: none;
+  width: calc(25vw - 66px);
+  min-width: 260px;
+  max-height: 100%;
+  overflow-y: auto;
+}
+
+/* ── Player bar ── */
+.player {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px;
+  background: var(--deck);
+  border: 1px solid var(--line);
+  border-radius: 12px 12px 0 0;
+}
+
+.play-btn {
+  width: 32px; height: 32px; flex-shrink: 0;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  font-size: 12px;
+  cursor: pointer;
+}
+.play-btn:hover   { border-color: var(--muted); }
+.play-btn.playing { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+.track-select {
+  flex: 1 1 calc(100% - 40px); min-width: 0;
+  height: 32px;
+  padding: 0 8px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.vol {
+  flex: 1;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 11px; color: var(--muted);
+}
+.vol input { flex: 1; min-width: 0; accent-color: var(--accent); }
+
+.save-btn {
+  height: 28px; padding: 0 10px; flex-shrink: 0;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  font-size: 11px; letter-spacing: 1px;
+  cursor: pointer;
+}
+.save-btn:hover { border-color: var(--muted); }
+
+/* ── Tabs ── */
+.tabs {
+  display: flex;
+  background: var(--deck);
+  border-left: 1px solid var(--line);
+  border-right: 1px solid var(--line);
+  overflow-x: auto;
+}
+.tab {
+  flex: 1;
+  min-width: 0;
+  height: 34px;
+  border: none;
+  border-bottom: 3px solid transparent;
+  background: none;
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.tab:hover  { color: var(--text); }
+.tab.active { color: var(--text); border-bottom-color: var(--accent); }
+
+/* ── Panels: stacked in one cell so the deck never changes height ── */
+.panels {
+  display: grid;
+  background: var(--deck);
+  border: 1px solid var(--line);
+  border-top-color: #222;
+  border-radius: 0 0 12px 12px;
+}
+.panel {
+  grid-area: 1 / 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  visibility: hidden;
+}
+.panel.active { visibility: visible; }
+
+.grid-3, .grid-4, .grid-5 { display: grid; gap: 6px; }
+.grid-3, .grid-4, .grid-5 { grid-template-columns: 1fr; }
+
+.row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.row-label { font-size: 11px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+.clips { display: flex; gap: 6px; flex: 1; }
+
+.hint { margin: 0; font-size: 11px; color: var(--muted); text-align: center; }
+.hint strong { color: var(--text); font-weight: normal; }
+
+/* ── Buttons ── */
+.btn {
+  min-height: 30px;
+  padding: 5px 6px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.1s, border-color 0.1s;
+}
+.btn:hover    { border-color: var(--muted); }
+.btn.active   { background: var(--accent); border-color: var(--accent); color: #fff; }
+.btn.selected { outline: 2px solid var(--text); outline-offset: 2px; }
+
+.btn-clip { width: 30px; flex-shrink: 0; }
+.btn-cam  { border-color: var(--cam); color: var(--cam); width: 100%; }
+.btn-cam:hover, .btn-cam.active { background: var(--cam); color: #000; border-color: var(--cam); }
+
+/* palette swatch strip */
+.swatch { display: flex; height: 6px; margin-top: 5px; border-radius: 3px; overflow: hidden; }
+.swatch span { flex: 1; }
+
+/* ── Knobs ── */
+.knob-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px 4px; }
+.knob-row  { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+
+.knob-wrap {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  user-select: none;
+}
+.knob {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  background: #262626;
+  border: 2px solid #444;
+  position: relative;
+  cursor: ns-resize;
+  touch-action: none;
+}
+.knob:hover { border-color: var(--muted); }
+.knob::after {
+  content: '';
+  position: absolute;
+  left: 50%; top: 3px;
+  width: 2px; height: 10px;
+  background: var(--text);
+  border-radius: 2px;
+  transform: translateX(-50%);
+}
+.knob-label { font-size: 10px; color: var(--muted); text-align: center; white-space: nowrap; }
+.knob-val   { font-size: 10px; color: var(--accent); }
+
+/* ── Type tab: knobs + X/Y side by side ── */
+.type-edit { display: flex; flex-direction: column; gap: 12px; }
+.xy { display: flex; flex-direction: column; gap: 8px; }
+.xy-row { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--muted); }
+.xy-row input  { flex: 1; accent-color: var(--accent); cursor: ew-resize; }
+.xy-row output { width: 40px; text-align: right; color: var(--accent); }
+
+/* ── Phones: stack the visual above the deck ── */
+@media (max-width: 700px) {
+  #app { flex-direction: column; height: auto; }
+  #stage { height: 70vh; }
+  #stage canvas { max-width: 100%; }
+  .deck { order: 0; width: 100%; min-width: 0; max-height: none; overflow: visible; }
+}
