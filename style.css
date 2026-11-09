@@ -1,0 +1,294 @@
+:root {
+  --bg:      #fff;
+  --deck:    #0b0b0c;
+  --surface: #1b1b1b;
+  --line:    #2a2a2c;
+  --text:    #e6e6e6;
+  --muted:   #8a8a8a;
+  --accent:  #e05;
+  --cam:     #0af;
+  --font:    'Share Tech Mono', ui-monospace, monospace;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+}
+
+button, select, input { font-family: inherit; color: inherit; }
+
+/* ── Housing sizes ── */
+:root {
+  --page-pad: 16px;          /* white space around the unit */
+  --bezel:    14px;          /* housing edge around screen + controls */
+  --gap:      14px;          /* between screen and controls */
+  --deck-w:   300px;         /* controls column */
+  --ratio:    1.4;           /* canvas is 750 × 1050 → h = w × 1.4 */
+
+  /* screen height: as tall as the viewport allows, but shrink if the width can't fit it */
+  --screen-h: min(
+    calc(100dvh - 2 * var(--page-pad) - 2 * var(--bezel)),
+    calc((100vw - 2 * var(--page-pad) - 2 * var(--bezel) - var(--gap) - var(--deck-w)) * var(--ratio))
+  );
+}
+
+/* ── Page: centers the unit ── */
+#app {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: var(--page-pad);
+  height: 100vh;
+  height: 100dvh;
+}
+
+/* ── The unit: one horizontal housing for screen + controls ── */
+.unit {
+  display: flex;
+  gap: var(--gap);
+  padding: var(--bezel);
+  border-radius: 22px;
+  background: linear-gradient(180deg, #1d1d1f 0%, #131314 55%, #0e0e0f 100%);
+  box-shadow:
+    0 0 0 1px #050505,                          /* crisp outer edge */
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),     /* top lip catching light */
+    inset 0 -1px 0 rgba(0, 0, 0, 0.6),
+    0 2px 6px rgba(0, 0, 0, 0.18),
+    0 28px 60px -24px rgba(0, 0, 0, 0.45);       /* lifts it off the page */
+}
+
+/* ── Screen: flush black glass, sized exactly to the canvas ── */
+#stage {
+  flex: none;
+  height: var(--screen-h);
+  width: calc(var(--screen-h) / var(--ratio));
+  border-radius: 10px;
+  overflow: hidden;
+  background: #000;
+  box-shadow: 0 0 0 1px #000, 0 0 0 2px #262628;
+}
+
+/* p5 sets inline px sizes; scale the canvas to fill the screen */
+#stage canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* ── Deck: controls column, same height as the screen ── */
+.deck {
+  order: -1;
+  flex: none;
+  width: var(--deck-w);
+  height: var(--screen-h);
+  display: flex;
+  flex-direction: column;
+}
+/* player + tabs stay put; only the panel area scrolls if the window is short */
+.deck .panels {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #333 transparent;
+}
+
+/* ── Unit header: wordmark + status ── */
+.unit-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2px 4px 12px;
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: var(--muted);
+}
+.brand { color: var(--text); letter-spacing: 5px; }
+.status { display: flex; align-items: center; gap: 7px; letter-spacing: 2px; }
+.dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 6px var(--accent);
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse { 50% { opacity: 0.35; } }
+
+/* ── Player bar ── */
+.player {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px;
+  background: var(--deck);
+  border: 1px solid var(--line);
+  border-radius: 12px 12px 0 0;
+}
+
+.play-btn {
+  width: 32px; height: 32px; flex-shrink: 0;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  font-size: 12px;
+  cursor: pointer;
+}
+.play-btn:hover   { border-color: var(--muted); }
+.play-btn.playing { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+.track-select {
+  flex: 1 1 calc(100% - 40px); min-width: 0;
+  height: 32px;
+  padding: 0 8px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.vol {
+  flex: 1;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 11px; color: var(--muted);
+}
+.vol input { flex: 1; min-width: 0; accent-color: var(--accent); }
+
+.save-btn {
+  height: 28px; padding: 0 10px; flex-shrink: 0;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  font-size: 11px; letter-spacing: 1px;
+  cursor: pointer;
+}
+.save-btn:hover { border-color: var(--muted); }
+
+/* ── Tabs ── */
+.tabs {
+  display: flex;
+  background: var(--deck);
+  border-left: 1px solid var(--line);
+  border-right: 1px solid var(--line);
+  overflow-x: auto;
+}
+.tab {
+  flex: 1;
+  min-width: 0;
+  height: 34px;
+  border: none;
+  border-bottom: 3px solid transparent;
+  background: none;
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.tab:hover  { color: var(--text); }
+.tab.active { color: var(--text); border-bottom-color: var(--accent); }
+
+/* ── Panels: stacked in one cell so the deck never changes height ── */
+.panels {
+  display: grid;
+  background: var(--deck);
+  border: 1px solid var(--line);
+  border-top-color: #222;
+  border-radius: 0 0 12px 12px;
+}
+.panel {
+  grid-area: 1 / 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  visibility: hidden;
+}
+.panel.active { visibility: visible; }
+
+.grid-3, .grid-4, .grid-5 { display: grid; gap: 6px; }
+.grid-3, .grid-4, .grid-5 { grid-template-columns: 1fr; }
+
+.row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.row-label { font-size: 11px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+.clips { display: flex; gap: 6px; flex: 1; }
+
+.hint { margin: 0; font-size: 11px; color: var(--muted); text-align: center; }
+.hint strong { color: var(--text); font-weight: normal; }
+
+/* ── Buttons ── */
+.btn {
+  min-height: 30px;
+  padding: 5px 6px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.1s, border-color 0.1s;
+}
+.btn:hover    { border-color: var(--muted); }
+.btn.active   { background: var(--accent); border-color: var(--accent); color: #fff; }
+.btn.selected { outline: 2px solid var(--text); outline-offset: 2px; }
+
+.btn-clip { width: 30px; flex-shrink: 0; }
+.btn-cam  { border-color: var(--cam); color: var(--cam); width: 100%; }
+.btn-cam:hover, .btn-cam.active { background: var(--cam); color: #000; border-color: var(--cam); }
+
+/* palette swatch strip */
+.swatch { display: flex; height: 6px; margin-top: 5px; border-radius: 3px; overflow: hidden; }
+.swatch span { flex: 1; }
+
+/* ── Knobs ── */
+.knob-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px 4px; }
+.knob-row  { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+
+.knob-wrap {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  user-select: none;
+}
+.knob {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  background: #262626;
+  border: 2px solid #444;
+  position: relative;
+  cursor: ns-resize;
+  touch-action: none;
+}
+.knob:hover { border-color: var(--muted); }
+.knob::after {
+  content: '';
+  position: absolute;
+  left: 50%; top: 3px;
+  width: 2px; height: 10px;
+  background: var(--text);
+  border-radius: 2px;
+  transform: translateX(-50%);
+}
+.knob-label { font-size: 10px; color: var(--muted); text-align: center; white-space: nowrap; }
+.knob-val   { font-size: 10px; color: var(--accent); }
+
+/* ── Type tab: knobs + X/Y side by side ── */
+.type-edit { display: flex; flex-direction: column; gap: 12px; }
+.xy { display: flex; flex-direction: column; gap: 8px; }
+.xy-row { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--muted); }
+.xy-row input  { flex: 1; accent-color: var(--accent); cursor: ew-resize; }
+.xy-row output { width: 40px; text-align: right; color: var(--accent); }
+
+/* ── Narrow screens (not designed for yet): stack screen above controls ── */
+@media (max-width: 700px) {
+  #app { height: auto; }
+  .unit { flex-direction: column; width: 100%; }
+  #stage { width: 100%; height: auto; aspect-ratio: 750 / 1050; }
+  .deck { order: 0; width: 100%; height: auto; }
+  .deck .panels { overflow: visible; }
+}
